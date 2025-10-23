@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolusi Detektor Objek: DINO, Grounding DINO, & DEYO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #073B4C;
+            color: #F1F5F9;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .info-card {
+            background-color: rgba(17, 138, 178, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .kpi-number {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="text-center my-12 md:my-16">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight text-white mb-4">Evolusi Detektor Objek</h1>
+            <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto">
+                Analisis Performa, Generalisasi, dan Efisiensi dari DINO, Grounding DINO, & DEYO.
+            </p>
+        </header>
+
+        <section class="my-16">
+            <h2 class="text-3xl font-bold text-center mb-8 text-white">Latar Belakang: Masalah Awal DETR</h2>
+            <p class="text-lg text-slate-300 text-center max-w-2xl mx-auto mb-10">
+                DETR (DEtection TRansformer) merevolusi deteksi objek dengan desain *end-to-end* tanpa NMS. Namun, model awalnya memiliki kelemahan yang signifikan.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="info-card border-t-4 border-[#06D6A0]">
+                    <h3 class="text-2xl font-bold mb-3 text-white">✅ Keuntungan DETR</h3>
+                    <ul class="list-disc list-inside space-y-2 text-lg text-slate-200">
+                        <li>Desain *End-to-End* pertama.</li>
+                        <li>Menghilangkan NMS (Non-Maximum Suppression).</li>
+                        <li>Pipeline yang lebih sederhana.</li>
+                    </ul>
+                </div>
+                <div class="info-card border-t-4 border-[#FF6B6B]">
+                    <h3 class="text-2xl font-bold mb-3 text-white">❌ Kelemahan DETR</h3>
+                    <ul class="list-disc list-inside space-y-2 text-lg text-slate-200">
+                        <li>Konvergensi pelatihan sangat lambat.</li>
+                        <li>Komputasi berat, terutama pada *encoder*.</li>
+                        <li>Sulit untuk dilatih dan di-debug.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section class="my-16">
+            <h2 class="text-3xl font-bold text-center mb-12 text-white">Tiga Jalur Evolusi DETR</h2>
+            
+            <div class="flex flex-col items-center">
+                <div class="info-card p-6 text-center shadow-2xl">
+                    <h3 class="text-2xl font-bold text-white">DETR (Dasar)</h3>
+                    <p class="text-slate-300">Revolusioner, tapi lambat & sulit dilatih</p>
+                </div>
+                
+                <div class="w-1 h-16 bg-[#118AB2]/50 rounded-full my-4"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+                    
+                    <div class="info-card text-center border-t-4 border-[#06D6A0]">
+                        <h3 class="text-2xl font-bold text-[#06D6A0] mb-2">JALUR 1: DINO</h3>
+                        <p class="text-lg font-semibold text-white">Fokus: Akurasi & Performa</p>
+                        <p class="text-slate-300 mt-2">Mencapai SOTA baru untuk deteksi *closed-set* dengan pelatihan yang lebih baik.</p>
+                    </div>
+                    
+                    <div class="info-card text-center border-t-4 border-[#FFD166]">
+                        <h3 class="text-2xl font-bold text-[#FFD166] mb-2">JALUR 2: GROUNDING DINO</h3>
+                        <p class="text-lg font-semibold text-white">Fokus: Generalisasi & Fleksibilitas</p>
+                        <p class="text-slate-300 mt-2">Menggunakan input teks untuk mendeteksi objek *open-set* (apa saja).</p>
+                    </div>
+                    
+                    <div class="info-card text-center border-t-4 border-[#FF6B6B]">
+                        <h3 class="text-2xl font-bold text-[#FF6B6B] mb-2">JALUR 3: DEYO</h3>
+                        <p class="text-lg font-semibold text-white">Fokus: Efisiensi & Kecepatan</p>
+                        <p class="text-slate-300 mt-2">Menjadi *real-time* dengan *encoder* ringan dari YOLO.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="my-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Jalur 1: DINO (Fondasi Akurasi)</h2>
+                    <p class="text-lg text-slate-300 mb-6">
+                        DINO mengatasi kelemahan utama DETR dengan tiga inovasi: *Contrastive DeNoising (CDN) Training*, *Mixed Query Selection*, dan *Look Forward Twice*. Ini secara drastis mempercepat konvergensi dan meningkatkan akurasi.
+                    </p>
+                    <div class="info-card border-l-4 border-[#06D6A0]">
+                        <p class="text-lg text-slate-200 mb-2">Hasil Akurasi (SOTA Closed-Set)</p>
+                        <p class="text-6xl kpi-number text-[#06D6A0]">63.3 AP</p>
+                        <p class="text-md text-slate-300">di COCO test-dev</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-center mb-4 text-white">Perbandingan Konvergensi (12 Epoch)</h3>
+                    <p class="text-base text-slate-300 text-center mb-4">
+                        DINO tidak hanya lebih akurat, tetapi juga berlatih jauh lebih cepat, mencapai performa tinggi hanya dalam 12 epoch.
+                    </p>
+                    <div class="chart-container">
+                        <canvas id="dinoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="my-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="lg:order-2">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Jalur 2: Grounding DINO (Generalisasi)</h2>
+                    <p class="text-lg text-slate-300 mb-6">
+                        Grounding DINO "menikahkan" arsitektur DINO yang kuat dengan pemahaman bahasa. Dengan *Dual-Encoder* (Teks + Gambar) dan fusi *cross-modality*, model ini dapat mendeteksi objek apa pun berdasarkan deskripsi teks.
+                    </p>
+                    <div class="info-card border-l-4 border-[#FFD166]">
+                        <p class="text-lg text-slate-200 mb-2">Hasil Akurasi (SOTA Open-Set)</p>
+                        <p class="text-6xl kpi-number text-[#FFD166]">52.5 AP</p>
+                        <p class="text-md text-slate-300">di COCO (Zero-Shot)</p>
+                    </div>
+                </div>
+                <div class="lg:order-1">
+                    <h3 class="text-2xl font-bold text-center mb-4 text-white">Konsep Arsitektur: Fusi Multi-Modal</h3>
+                    <div class="info-card space-y-4">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 p-4 bg-[#073B4C] rounded-lg text-center">
+                                <span class="text-4xl">🖼️</span>
+                                <p class="text-lg font-semibold text-white mt-2">Image Encoder</p>
+                            </div>
+                            <div class="flex-1 p-4 bg-[#073B4C] rounded-lg text-center">
+                                <span class="text-4xl">⌨️</span>
+                                <p class="text-lg font-semibold text-white mt-2">Text Encoder</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-center text-4xl font-bold text-[#FFD166]">⬇️</div>
+                        <div class="p-4 bg-[#FFD166]/20 rounded-lg text-center border border-[#FFD166]/50">
+                            <p class="text-xl font-bold text-[#FFD166]">FUSI CROSS-MODALITY</p>
+                            <p class="text-sm text-white">(Feature Enhancer, Language-Guided Query, Decoder)</p>
+                        </div>
+                        <div class="flex justify-center text-4xl font-bold text-[#FFD166]">⬇️</div>
+                        <div class="p-4 bg-[#073B4C] rounded-lg text-center">
+                             <span class="text-4xl">🎯</span>
+                            <p class="text-lg font-semibold text-white mt-2">Output Deteksi Open-Set</p>
+                            <p class="text-sm text-slate-300">"Anjing di sebelah kiri mobil"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="my-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Jalur 3: DEYO (Efisiensi Real-Time)</h2>
+                    <p class="text-lg text-slate-300 mb-6">
+                        DEYO mengatasi masalah kecepatan dengan mengganti *encoder* Transformer yang berat dengan *encoder* berbasis konvolusi ringan dari YOLO. Metode *Step-by-Step Training* membuatnya efisien untuk dilatih tanpa *pre-training* ImageNet.
+                    </p>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="info-card flex-1 border-l-4 border-[#FF6B6B]">
+                            <p class="text-lg text-slate-200 mb-2">Hasil Akurasi</p>
+                            <p class="text-6xl kpi-number text-[#FF6B6B]">53.7 AP</p>
+                        </div>
+                        <div class="info-card flex-1 border-l-4 border-[#FF6B6B]">
+                            <p class="text-lg text-slate-200 mb-2">Hasil Kecepatan (SOTA Real-Time)</p>
+                            <p class="text-6xl kpi-number text-[#FF6B6B]">65 FPS</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-center mb-4 text-white">Konsep Pelatihan: Step-by-Step</h3>
+                    <div class="info-card space-y-4">
+                        <div class="p-6 bg-[#FF6B6B]/20 rounded-lg border border-[#FF6B6B]/50">
+                            <p class="text-xl font-bold text-[#FF6B6B]">TAHAP 1: Latih Encoder (YOLO)</p>
+                            <p class="text-white mt-2">Latih *Backbone* + *Neck* dari YOLO. Cepat dan efisien.</p>
+                        </div>
+                        <div class="flex justify-center text-4xl font-bold text-[#FF6B6B]">➡️</div>
+                        <div class="p-6 bg-[#FF6B6B]/20 rounded-lg border border-[#FF6B6B]/50">
+                            <p class="text-xl font-bold text-[#FF6B6B]">TAHAP 2: Latih Decoder (DETR)</p>
+                            <p class="text-white mt-2">Bekukan *Encoder* YOLO. Pasang dan latih *Decoder* DETR yang ringan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="my-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-white">Perbandingan Akhir: Akurasi vs. Kecepatan</h2>
+            <p class="text-lg text-slate-300 text-center max-w-2xl mx-auto mb-10">
+                Grafik ini memetakan model berdasarkan Akurasi (AP) dan Kecepatan (FPS). Ini menunjukkan *trade-off* yang jelas: DINO adalah raja akurasi, sementara DEYO adalah raja kecepatan. Grounding DINO berada di kategorinya sendiri sebagai model *open-set*.
+            </p>
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </section>
+
+        <footer class="my-16 text-center text-slate-400">
+            <h2 class="text-3xl font-bold text-white mb-6">Kesimpulan Evolusi</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="info-card border-b-4 border-[#06D6A0]">
+                    <h3 class="text-xl font-bold text-[#06D6A0] mb-2">1. DINO</h3>
+                    <p class="text-slate-200">Membuktikan bahwa arsitektur DETR dapat mencapai **akurasi SOTA**, mengalahkan model klasik.</p>
+                </div>
+                <div class="info-card border-b-4 border-[#FFD166]">
+                    <h3 class="text-xl font-bold text-[#FFD166] mb-2">2. Grounding DINO</h3>
+                    <p class="text-slate-200">Mengambil akurasi DINO dan membuatnya **general (fleksibel)** dengan pemahaman bahasa.</p>
+                </div>
+                <div class="info-card border-b-4 border-[#FF6B6B]">
+                    <h3 class="text-xl font-bold text-[#FF6B6B] mb-2">3. DEYO</h3>
+                    <p class="text-slate-200">Mengambil konsep *end-to-end* DETR dan membuatnya **efisien (real-time)** dengan arsitektur YOLO.</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        window.onload = function () {
+            
+            function wrapLabels(label, maxWidth) {
+                if (typeof label !== 'string' || label.length <= maxWidth) {
+                    return label;
+                }
+                const words = label.split(' ');
+                let lines = [];
+                let currentLine = '';
+                for (const word of words) {
+                    if ((currentLine + ' ' + word).trim().length > maxWidth) {
+                        if (currentLine) {
+                            lines.push(currentLine.trim());
+                        }
+                        currentLine = word;
+                    } else {
+                        currentLine = (currentLine + ' ' + word).trim();
+                    }
+                }
+                if (currentLine) {
+                    lines.push(currentLine.trim());
+                }
+                
+                if (lines.length === 0 && label.length > maxWidth) {
+                     let part1 = label.substring(0, maxWidth);
+                     let part2 = label.substring(maxWidth);
+                     return [part1, part2];
+                }
+                return lines;
+            }
+
+            function processLabels(labels, maxWidth = 16) {
+                return labels.map(label => wrapLabels(label, maxWidth));
+            }
+            
+            const tooltipTitleCallback = {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                } else {
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            const chartColors = {
+                green: '#06D6A0',
+                yellow: '#FFD166',
+                red: '#FF6B6B',
+                blue: '#118AB2',
+                text: '#F1F5F9',
+                grid: 'rgba(241, 245, 249, 0.2)'
+            };
+
+            const globalChartOptions = (axisColor) => ({
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: axisColor, font: { weight: '600' } },
+                        grid: { color: chartColors.grid, drawBorder: false }
+                    },
+                    x: {
+                        ticks: { color: axisColor, font: { weight: '600' } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { 
+                            color: chartColors.text,
+                            font: { size: 14, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#073B4C',
+                        titleColor: chartColors.text,
+                        bodyColor: chartColors.text,
+                        borderColor: chartColors.grid,
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                }
+            });
+
+            var ctxDino = document.getElementById('dinoChart').getContext('2d');
+            new Chart(ctxDino, {
+                type: 'bar',
+                data: {
+                    labels: processLabels(['Deformable DETR', 'DN-Deformable DETR', 'DINO (Ours)']),
+                    datasets: [{
+                        label: 'AP @ 12 Epochs',
+                        data: [41.1, 43.4, 49.4],
+                        backgroundColor: [chartColors.blue, chartColors.yellow, chartColors.green],
+                        borderColor: [chartColors.blue, chartColors.yellow, chartColors.green],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    ...globalChartOptions(chartColors.text),
+                    ...tooltipTitleCallback,
+                    plugins: {
+                        ...globalChartOptions().plugins,
+                        ...tooltipTitleCallback.plugins,
+                        legend: { display: false }
+                    },
+                    scales: {
+                         y: {
+                            ...globalChartOptions(chartColors.text).scales.y,
+                            title: { display: true, text: 'Akurasi (AP)', color: chartColors.text }
+                        },
+                        x: globalChartOptions(chartColors.text).scales.x
+                    }
+                }
+            });
+
+            var ctxComparison = document.getElementById('comparisonChart').getContext('2d');
+            new Chart(ctxComparison, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'DINO-L (Akurasi SOTA)',
+                            data: [{ x: 10, y: 63.3 }],
+                            backgroundColor: chartColors.green,
+                            pointRadius: 10,
+                            pointHoverRadius: 15
+                        },
+                        {
+                            label: 'Grounding DINO-T (Open-Set)',
+                            data: [{ x: 8.37, y: 57.2 }],
+                            backgroundColor: chartColors.yellow,
+                            pointRadius: 10,
+                            pointHoverRadius: 15
+                        },
+                        {
+                            label: 'DEYO-X (Real-Time)',
+                            data: [{ x: 65, y: 53.7 }],
+                            backgroundColor: chartColors.red,
+                            pointRadius: 10,
+                            pointHoverRadius: 15
+                        }
+                    ]
+                },
+                options: {
+                    ...globalChartOptions(chartColors.text),
+                    scales: {
+                        y: {
+                            ...globalChartOptions(chartColors.text).scales.y,
+                            title: { display: true, text: 'Akurasi (AP)', color: chartColors.text, font: { size: 14, weight: '600' } }
+                        },
+                        x: {
+                            ...globalChartOptions(chartColors.text).scales.x,
+                            beginAtZero: true,
+                            grid: { color: chartColors.grid, drawBorder: false },
+                            title: { display: true, text: 'Kecepatan (FPS)', color: chartColors.text, font: { size: 14, weight: '600' } }
+                        }
+                    },
+                    plugins: {
+                        ...globalChartOptions().plugins,
+                        tooltip: {
+                            ...globalChartOptions().plugins.tooltip,
+                            callbacks: {
+                                title: function() { return ''; },
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += `(FPS: ${context.raw.x}, AP: ${context.raw.y})`;
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+    </script>
+
+</body>
+</html>
